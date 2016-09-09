@@ -1,0 +1,224 @@
+<html ng-app="retail">
+<head>
+
+<link rel="stylesheet"  href="css/bootstrap.min.css">
+<link  rel="stylesheet" href="css/font-awesome.min.css">
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="libs/angular.min.js"></script>
+ 
+<script src="libs/angular-strap/dist/angular-strap.js"></script>
+<script src="libs/angular-strap/dist/angular-strap.tpl.js"></script>
+<script src="libs/dirpaginate.js"></script>
+<style>
+.upload{
+ 
+border:none;
+background:#dee0e1;
+font-size: 18px;
+}
+a{color:#a1a5a7;}
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+    color: #484a4d;
+    cursor: default;
+    background:none;
+    border:none;
+   
+        font-size: 18px;
+}
+.nav>li>a>img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+.nav-tabs>li>a {
+    margin-right: 0px;
+   
+    border:none;
+    border-radius: 0px;
+}
+.txt{
+  text-transform: uppercase;
+}
+</style>
+ 
+</head>
+<body ng-controller="retailCtrl">
+ 
+<div class="container">
+<a  href="javascript:void()"><img src="images/logo.png" class="img-responsive" alt="logo" /></a>
+<div class="col-md-12" style="padding:10px;background-color:#ADD8E6;">
+<div class="col-md-6">
+<form class="form-horizontal" role="form" >
+  <div class="form-group">
+    <label class="control-label col-md-4" for="ifsc">IFSC CODE:</label>
+    <div class="col-sm-8">
+      <input type="text" class="form-control txt" id="ifsc" ng-model="a.ifsc"  placeholder="Enter  11 digit code" uppercase ng-change="getBank(a)">
+      <!-- <button class="btn btn-primary" ng-click="getBank(a)">Get Bank name </button> -->
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="control-label col-md-4" for="bank">Bank name:</label>
+    <div class="col-sm-8">
+      <input type="text" class="form-control" id="bank" value="{{bankname.BANK +' '+bankname.BRANCH +' '+bankname.STATE}}" readonly="true">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="control-label col-md-4" for="entries">Number of entries:</label>
+    <div class="col-sm-8">
+      <input type="text" class="form-control" id="entries" ng-model="entries" placeholder="Enter Number">
+    </div>
+  </div>
+</form>
+ </div>
+ <div class="col-md-6">
+ <form class="form-horizontal" role="myform">
+ <div class="form-group">
+ <label class="col-md-3 control-label">SEARCH BY:</label>
+ <div class="col-md-9">
+<div class="col-md-4">
+ <select class="form-control" ng-model="searchBy">
+ <option value="">--select--</option>
+ <option value="Date">Date</option>
+ <option value="Narration">Narration</option>
+ <option value="Credit">Credit</option>
+ <option value="Debit">Debit</option>
+ </select>
+ </div>
+<!--  <div class="col-md-8" style="margin-left:-31px;" ng-switch on="searchBy" >
+      <div ng-switch-when="text"><input type="text" class="form-control" id="id1" ng-model="c.narration" placeholder="Enter Text Here" ng-change="getSearch(c.narration)" /></div>
+      <div ng-switch-when="date"><input type="text" class="form-control" id="id2" ng-model="c.date" bs-datepicker ng-change="getSearch(c.date)" placeholder="MM/DD/YY" /></div>
+      <div ng-switch-when="credit"><input type="text" class="form-control" id="id3" ng-model="c.credit" placeholder="Enter Number Here" ng-change="getSearch(c.credit)"></div>
+      <div ng-switch-when="debit"><input type="text" class="form-control" id="id4" ng-model="c.debit" placeholder="Enter Number Here" ng-change="getSearch(c.debit)"></div>
+      <div ng-switch-default><input type="text" class="form-control" id="id4" ng-model="c.text" placeholder="Enter Text Here" ng-change="getSearch(c.text)"></div>
+      Seaching By :{{dd}}
+</div> -->
+  <div class="col-md-8" style="margin-left:-31px;" >
+    <div ng-if="!searchBy"><input type="text" class="form-control" ng-model="search" placeholder="Search with content" ng-init="s=search"/></div>
+    <div ng-if="searchBy=='Narration'"><input type="text" class="form-control" ng-model="a.Narration" placeholder="Narration" ng-init="s=a.Narration"></div>
+    <div ng-if="searchBy=='Date'"><input type="text" class="form-control" ng-model="a.Date" placeholder="MM/DD/YY" bs-datepicker ng-init="s=a.Date"></div>
+    <div ng-if="searchBy=='Debit'"><input type="text" class="form-control" ng-model="a.Debit" placeholder="Debit"></div>
+    <div ng-if="searchBy=='Credit'"><input type="text" class="form-control" ng-model="a.narration" placeholder="Credit"></div>
+ </div>
+ </div>
+ </div>
+ {{searchBy}} 
+ </form>
+ </div>
+<div class="clearfix"></div>
+<div class="col-md-offset-5 col-md-4">
+<div class="col-md-12">
+<button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal">UPLOAD DOCUMENT</button></div>
+   
+<div class="col-md-offset-1 col-md-5">
+<button type="button" class="btn btn-primary btn-block" style="margin-top:15px;" ng-click="insertData(a)">SUBMIT</button></div>
+<button type="button" class="btn btn-primary" style="margin-top:15px;" ng-click="getRecords(a)">Get Records</button></div>
+ 
+</div>
+</div>
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog" >
+  <div class="modal-dialog modal-lg" style="padding:10px;">
+ 
+    <!-- Modal content-->
+    <div class="modal-content" style="background-color:#efefef;">
+      <div class="modal-body">
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  <div class="row">
+                        <div class="col-md-2 text-center">
+                        <ul class="nav nav-tabs nav-stacked">
+                        <li class="upload" style="padding:15px"><a href="#desktop"  data-toggle="tab"><i class="fa fa-desktop"></i></a></li>
+                        <li class="active" style="padding:15px"><a href="#chain" data-toggle="tab"><i class="fa fa-link" aria-hidden="true"></i></a></li>
+                        <li class="upload"><a href="#"  data-toggle="tab"><img  src="images/Image3_03.png" class="img-responsive" alt=""></a></li>
+                        <li class="upload"><a href="#"  data-toggle="tab"><img src="images/Image3_05.png" class="img-responsive" alt=""></a></li>
+                        <li class="upload" style="padding:15px"><a href="#"  data-toggle="tab"><i class="fa fa-dropbox" aria-hidden="true"></i></a></li>
+                        <li class="upload" style="padding:15px"><a href="#"  data-toggle="tab"><i class="fa fa-cloud" aria-hidden="true"></i></a></li>
+                        </ul>
+                        </div>
+                        <div class="col-md-10" >
+                        <div class="col-md-12">
+                        <div class="tab-content">
+                          <div id="chain" class="tab-pane fade in active">
+ 
+                        <h4><strong>Files from the Web</strong></h4>
+                        <p>Grab any file of the web</p>
+                        <p>just provide the link</p>
+                       
+                        <form class="form-horizontal" style="margin-left:10px;">
+                       
+                        <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Paste your link here" ng-model="f.links">
+                        <a href="javascript:void(0)" class="btn btn-default" style="margin-top:10px;" ng-click=uploadPdf(f)>Upload</a>
+                        </div>
+                        </form>
+       
+                       
+                       
+                       
+                       
+                       
+                       
+                        </div>
+                       
+                        </div>
+                        </div>
+                  <div class="col-md-12 text-center" style="background:#faeeba;padding:5px;margin-top:145px">
+           <div class="col-md-4"><a href="javascript:void()" class="btn btn-default" style="margin-top:10px">Show Files</a></div>
+           <div class="col-md-4"><p style="margin-top:15px">You've chosen 0 files</p></div>
+           <div class="col-md-4"><a href="javascript:void()" class="btn btn-primary" style="margin-top:10px">Done</a></div>                
+         </div>          
+                  </div>
+         
+         
+          </div>
+       
+     
+     
+    </div>
+ 
+  </div>
+  </div>
+  </div>        
+  <table class="table table-hover">
+    <thead style="background-color:#B6B6B4;">
+      <tr>
+        <th>Date</th>
+        <th>Name</th>
+        <th>Narration</th>
+                  <th>debit</th>
+        <th>credit</th>
+              <th>closing</th>
+      </tr>
+    </thead>
+    <tbody>
+    <!-- <p>{{pdfdata}}</p> -->
+      <tr dir-paginate="x in pdfdata |orderBy:sortKey:reverse|filter:searchby|itemsPerPage:entries">
+     <!--  <tr ng-if="searchBy=='Date'"  dir-paginate="x in pdfdata |orderBy:sortKey:reverse|filter:x.Date|itemsPerPage:entries">
+      <tr ng-if="searchBy=='Narration'" dir-paginate="x in pdfdata |orderBy:sortKey:reverse|filter:x.Narration|itemsPerPage:entries">
+      <tr ng-if="searchBy=='Debit'" dir-paginate="x in pdfdata |orderBy:sortKey:reverse|filter:x.Debit|itemsPerPage:entries">
+      <tr ng-if="searchBy=='Credit'" dir-paginate="x in pdfdata |orderBy:sortKey:reverse|filter:x.Credit|itemsPerPage:entries"> -->
+     
+       <!--<tr ng-repeat=" x in pdfdata | filter:search|itemsPerPage:entries'">-->
+          <td>{{x.Date}}</td>
+          <td>{{x.Name}}</td>
+          <td>{{x.Narration}}</td>
+          <td>{{x.Debit}}</td>
+          <td>{{x.Credit}}</td>
+          <td>{{x.Closing}}</td>
+      </tr>
+     
+         
+    </tbody>
+  </table>
+  <!-- <dir-pagination-controls
+         max-size="10"
+         direction-links="true"
+         boundary-links="true" >
+       </dir-pagination-controls>
+   
+-->
+</div>
+</body>
+ 
+<script type="text/javascript" src="main.js"></script>
+</html>
